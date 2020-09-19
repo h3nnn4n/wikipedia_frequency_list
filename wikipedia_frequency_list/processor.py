@@ -60,9 +60,6 @@ def process():
             progress = bytes_read / filesize * 100.0
             progress_bar.update(progress)
 
-            if progress * 100 > 1:
-                break
-
     return frequency_list
 
 
