@@ -81,3 +81,15 @@ def parse_line(frequency_list, line):
             frequency_list[token] = 1
         else:
             frequency_list[token] += 1
+
+
+def sort_and_normalize(frequency_list):
+    sorted_frequency_list = {
+        k: v for k, v in sorted(
+            frequency_list.items(),
+            key=lambda item: item[1],
+            reverse=True
+        )
+    }
+
+    return sorted_frequency_list
