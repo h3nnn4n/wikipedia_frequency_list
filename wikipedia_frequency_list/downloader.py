@@ -1,6 +1,7 @@
-from tqdm import tqdm
 import requests
 import os
+
+from tqdm import tqdm
 
 
 FILE_NAME = 'data.xml.bz2'
