@@ -1,0 +1,9 @@
+[MASTER]
+ignore=
+[MESSAGES CONTROL]
+disable=missing-module-docstring,missing-class-docstring,missing-function-docstring
+good-names=e,
+[LOGGING]
+logging-format-style=new
+[FORMAT]
+max-line-length=140

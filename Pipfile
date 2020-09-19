@@ -1,0 +1,18 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+beautifulsoup4 = "*"
+requests = "*"
+ipdb = "*"
+flask = "*"
+mecab-python3 = "*"
+unidic-lite = "*"
+tqdm = "*"
+
+[requires]
+python_version = "3.8"
