@@ -17,7 +17,7 @@ uses it instead of downloading and extracting again.
 - [ ] Properly parse the XML file
 - [x] Fix decompression not working
 - [x] Fix download progress bar to show ETA and %%s
-- [ ] Fix decompression progress bar to show the actual progress (instead of whatever it is showing right now)
+- [x] Fix decompression progress bar to show the actual progress (instead of whatever it is showing right now)
 - [ ] Fix processing progress bar to show the actual progress (instead of whatever it is showing right now)
 - [ ] Support resuming partial downloads
 - [ ] Support resuming decompression

@@ -14,9 +14,11 @@ def extract():
 
     print('extracing data')
 
+    file_size = os.path.getsize(FILE_NAME)
+
     progress_bar = tqdm(
-        total=os.path.getsize(FILE_NAME),
-        mininterval=0.1,
+        total=file_size,
+        mininterval=0.5,
         unit='B',
         unit_scale=True,
         unit_divisor=1024
@@ -31,7 +33,7 @@ def extract():
 
     while True:
         raw_data = compressed_file_handle.read(16384)
-        bytes_read += len(raw_data)
+        bytes_read = len(raw_data)
         progress_bar.update(bytes_read)
 
         if len(raw_data) == 0:
