@@ -26,11 +26,16 @@ def download():
     url = 'https://dumps.wikimedia.org/jawiki/latest/jawiki-latest-pages-articles.xml.bz2'
 
     session = requests.Session()
+    response = session.head(url)
+    content_size = response.headers.get('content-length', 0)
     download_handle = session.get(url, stream=True)
     download_handle.raise_for_status()
 
+    content_size = int(content_size) if isinstance(content_size, str) else content_size
+
     progress_bar_iterator = tqdm(
         download_handle.iter_content(chunk_size=1024 * 1024),
+        total=content_size,
         mininterval=0.1,
         unit='MB',
         unit_scale=True,
