@@ -4,7 +4,7 @@ import re
 import MeCab
 
 from tqdm import tqdm
-from multiprocessing import Process, Lock, Queue, cpu_count
+from multiprocessing import Process, Queue, cpu_count
 
 from .downloader import FILE_NAME, FINAL_FILE_NAME
 
@@ -62,11 +62,11 @@ def process():
 
     total_bytes_read = 0
     n_processes = cpu_count()
-    lock = Lock()
-    queue = Queue(maxsize=10)
+    input_queue = Queue(maxsize=50)
+    output_queue = Queue()
 
     processes = [
-        Process(target=p_processor, args=(lock, queue, frequency_list))
+        Process(target=p_processor, args=(input_queue, output_queue))
         for i in range(n_processes)
     ]
 
@@ -82,7 +82,7 @@ def process():
 
             reader_buffer = lines.pop()
 
-            queue.put(lines)
+            input_queue.put(lines)
 
             bytes_read = len(chunk.encode('utf-8'))
             total_bytes_read += bytes_read
@@ -92,7 +92,16 @@ def process():
                 break
 
     for _ in processes:
-        queue.put('die')
+        input_queue.put('die')
+
+    for _ in processes:
+        partial_frequency_list = output_queue.get()
+
+        for key, value in partial_frequency_list.items():
+            try:
+                frequency_list[key] += value
+            except KeyError:
+                frequency_list[key] = value
 
     for process in processes:
         process.join()
@@ -100,28 +109,19 @@ def process():
     return frequency_list
 
 
-def p_processor(lock, queue, frequency_list):
+def p_processor(input_queue, output_queue):
+    frequency_list = {}
+
     while True:
-        lines = queue.get()
+        lines = input_queue.get()
 
         if lines == 'die':
             break
 
-        temp_frequency_list = {}
-
         for line in lines:
-            parse_line(temp_frequency_list, line)
+            parse_line(frequency_list, line)
 
-        lock.acquire()
-
-        try:
-            for key, value in temp_frequency_list.items():
-                if key not in frequency_list.keys():
-                    frequency_list[key] = value
-                else:
-                    frequency_list[key] += value
-        finally:
-            lock.release()
+    output_queue.put(frequency_list)
 
 
 def parse_line(frequency_list, line):
