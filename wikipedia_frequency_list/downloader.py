@@ -38,7 +38,7 @@ def download():
         download_handle.iter_content(chunk_size=1024 * 1024),
         total=content_size,
         mininterval=0.1,
-        unit='MB',
+        unit='B',
         unit_scale=True,
         unit_divisor=1024
     )
