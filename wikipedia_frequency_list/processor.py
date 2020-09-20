@@ -52,7 +52,7 @@ def process():
     filesize = os.path.getsize(FINAL_FILE_NAME)
 
     progress_bar = tqdm(
-        total=100,
+        total=filesize,
         mininterval=0.1,
         unit='B',
         unit_scale=True,
@@ -71,9 +71,8 @@ def process():
             for line in lines:
                 parse_line(frequency_list, line)
 
-            bytes_read += len(chunk.encode('utf-8'))
-            progress = bytes_read / filesize * 100.0
-            progress_bar.update(progress)
+            bytes_read = len(chunk.encode('utf-8'))
+            progress_bar.update(bytes_read)
 
     return frequency_list
 
