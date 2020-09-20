@@ -23,7 +23,7 @@ def download():
 
     print('downloading')
 
-    url = 'https://dumps.wikimedia.org/jawiki/latest/jawiki-latest-pages-articles-multistream.xml.bz2'
+    url = 'https://dumps.wikimedia.org/jawiki/latest/jawiki-latest-pages-articles.xml.bz2'
 
     session = requests.Session()
     download_handle = session.get(url, stream=True)
