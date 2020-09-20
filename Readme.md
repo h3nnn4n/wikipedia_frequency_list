@@ -23,7 +23,7 @@ uses it instead of downloading and extracting again.
 - [ ] Support resuming decompression
 - [ ] Support resuming parsing and progression
 - [ ] Make output compatible with yomichan's
-- [ ] Make it not terribly slow
+- [x] Make it not terribly slow
 
 # LICENSE
 
