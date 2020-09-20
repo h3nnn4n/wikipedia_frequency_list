@@ -1,5 +1,5 @@
-import requests
 import os
+import requests
 
 from tqdm import tqdm
 
@@ -19,7 +19,8 @@ def needs_to_download():
 
 
 def download():
-    if not needs_to_download(): return
+    if not needs_to_download():
+        return
 
     print('downloading')
 

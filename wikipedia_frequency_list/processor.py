@@ -1,10 +1,12 @@
 import bz2
 import os
 import re
-import MeCab
 
-from tqdm import tqdm
 from multiprocessing import Process, Queue, cpu_count
+from tqdm import tqdm
+
+# pylint: disable=import-error
+import MeCab
 
 from .downloader import FILE_NAME, FINAL_FILE_NAME
 
@@ -26,7 +28,6 @@ def extract():
     )
 
     decomp = bz2.BZ2Decompressor()
-
     compressed_file_handle = open(FILE_NAME, 'rb')
     output_file_handle = open(FINAL_FILE_NAME, 'wb')
 
@@ -44,30 +45,26 @@ def extract():
         output_file_handle.write(data)
 
 
-def process():
+def parse():
     print('parsing')
 
     frequency_list = {}
-    chunk_size = 1024 * 64
     bytes_read = 0
-    filesize = os.path.getsize(FINAL_FILE_NAME)
 
     progress_bar = tqdm(
-        total=filesize,
+        total=os.path.getsize(FINAL_FILE_NAME),
         mininterval=0.1,
         unit='B',
         unit_scale=True,
         unit_divisor=1024
     )
 
-    total_bytes_read = 0
-    n_processes = cpu_count()
     input_queue = Queue(maxsize=50)
     output_queue = Queue()
 
     processes = [
         Process(target=p_processor, args=(input_queue, output_queue))
-        for i in range(n_processes)
+        for i in range(cpu_count())
     ]
 
     for process in processes:
@@ -77,7 +74,7 @@ def process():
         reader_buffer = ''
 
         while True:
-            chunk = file_handle.read(chunk_size)
+            chunk = file_handle.read(1024 * 64)
             lines = (reader_buffer + chunk).split('\n')
 
             reader_buffer = lines.pop()
@@ -85,11 +82,7 @@ def process():
             input_queue.put(lines)
 
             bytes_read = len(chunk.encode('utf-8'))
-            total_bytes_read += bytes_read
             progress_bar.update(bytes_read)
-
-            if total_bytes_read > 1024 ** 2 * 10:
-                break
 
     for _ in processes:
         input_queue.put('die')
@@ -150,6 +143,7 @@ def parse_line(frequency_list, line):
 
 def sort_and_normalize(frequency_list):
     sorted_frequency_list = {
+        # pylint: disable=unnecessary-comprehension
         k: v for k, v in sorted(
             frequency_list.items(),
             key=lambda item: item[1],
