@@ -13,19 +13,32 @@ def extract():
         return
 
     print('extracing data')
+
+    progress_bar = tqdm(
+        total=os.path.getsize(FILE_NAME),
+        mininterval=0.1,
+        unit='B',
+        unit_scale=True,
+        unit_divisor=1024
+    )
+
     decomp = bz2.BZ2Decompressor()
 
-    # This doesnt work
-    with open(FILE_NAME, 'rb') as compressed_file_handle:
-        with open(FINAL_FILE_NAME, 'wb') as output_file_handle:
-            while True:
-                raw_data = compressed_file_handle.read(16384)
+    compressed_file_handle = open(FILE_NAME, 'rb')
+    output_file_handle = open(FINAL_FILE_NAME, 'wb')
 
-                if len(raw_data) == 0:
-                    break
+    bytes_read = 0
 
-                data = decomp.decompress(raw_data)
-                output_file_handle.write(data)
+    while True:
+        raw_data = compressed_file_handle.read(16384)
+        bytes_read += len(raw_data)
+        progress_bar.update(bytes_read)
+
+        if len(raw_data) == 0:
+            break
+
+        data = decomp.decompress(raw_data)
+        output_file_handle.write(data)
 
 
 def process():
