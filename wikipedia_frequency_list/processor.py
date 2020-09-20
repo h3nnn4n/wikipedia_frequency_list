@@ -47,7 +47,7 @@ def process():
     print('parsing')
 
     frequency_list = {}
-    chunk_size = 1024 * 32
+    chunk_size = 1024 * 64
     bytes_read = 0
     filesize = os.path.getsize(FINAL_FILE_NAME)
 
@@ -58,6 +58,8 @@ def process():
         unit_scale=True,
         unit_divisor=1024
     )
+
+    total_bytes_read = 0
 
     with open(FINAL_FILE_NAME, 'rt') as file_handle:
         reader_buffer = ''
@@ -72,19 +74,27 @@ def process():
                 parse_line(frequency_list, line)
 
             bytes_read = len(chunk.encode('utf-8'))
+            total_bytes_read += bytes_read
             progress_bar.update(bytes_read)
 
     return frequency_list
 
 
 def parse_line(frequency_list, line):
+    clean_line = re.sub(r'[a-zA-Z0-9]+', '', line)
+    clean_line = re.sub(r'^\W+', '', clean_line)
+    clean_line = re.sub(r'\W+', '', clean_line)
+
+    if len(clean_line) == 0:
+        return
+
     wakati = MeCab.Tagger("-Owakati")
-    tokens = wakati.parse(line).split()
+    tokens = wakati.parse(clean_line).split()
+
+    if len(tokens) == 0:
+        return
 
     for token in tokens:
-        token = re.sub(r'[a-zA-Z0-9]+', '', token)
-        token = re.sub(r'^\W+', '', token)
-
         if len(token) == 0 or token[0] == '_':
             continue
 
