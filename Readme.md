@@ -6,6 +6,12 @@ words.
 
 MeCab is used to parse japanese texts.
 
+The script does everything automatically. However, to make things faster
+it is possible to download
+[this](https://dumps.wikimedia.org/jawiki/latest/jawiki-latest-pages-articles-multistream.xml.bz2),
+extract it and rename to `data.xml`. The code detect that the files exists and
+uses it instead of downloading and extracting again.
+
 # TODO
 
 - [ ] Properly parse the XML file
@@ -16,6 +22,7 @@ MeCab is used to parse japanese texts.
 - [ ] Support resuming decompression
 - [ ] Support resuming parsing and progression
 - [ ] Make output compatible with yomichan's
+- [ ] Make it not terribly slow
 
 # LICENSE
 
