@@ -4,6 +4,7 @@ import re
 import MeCab
 
 from tqdm import tqdm
+from multiprocessing import Process, Lock, Queue, cpu_count
 
 from .downloader import FILE_NAME, FINAL_FILE_NAME
 
@@ -60,6 +61,17 @@ def process():
     )
 
     total_bytes_read = 0
+    n_processes = cpu_count()
+    lock = Lock()
+    queue = Queue(maxsize=10)
+
+    processes = [
+        Process(target=p_processor, args=(lock, queue, frequency_list))
+        for i in range(n_processes)
+    ]
+
+    for process in processes:
+        process.start()
 
     with open(FINAL_FILE_NAME, 'rt') as file_handle:
         reader_buffer = ''
@@ -70,14 +82,46 @@ def process():
 
             reader_buffer = lines.pop()
 
-            for line in lines:
-                parse_line(frequency_list, line)
+            queue.put(lines)
 
             bytes_read = len(chunk.encode('utf-8'))
             total_bytes_read += bytes_read
             progress_bar.update(bytes_read)
 
+            if total_bytes_read > 1024 ** 2 * 10:
+                break
+
+    for _ in processes:
+        queue.put('die')
+
+    for process in processes:
+        process.join()
+
     return frequency_list
+
+
+def p_processor(lock, queue, frequency_list):
+    while True:
+        lines = queue.get()
+
+        if lines == 'die':
+            break
+
+        temp_frequency_list = {}
+
+        for line in lines:
+            parse_line(temp_frequency_list, line)
+
+        lock.acquire()
+
+        try:
+            for key, value in temp_frequency_list.items():
+                if key not in frequency_list.keys():
+                    frequency_list[key] = value
+                else:
+                    frequency_list[key] += value
+        finally:
+            lock.release()
 
 
 def parse_line(frequency_list, line):
