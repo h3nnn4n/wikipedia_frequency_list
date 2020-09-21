@@ -1,6 +1,7 @@
 import bz2
 import os
 import re
+import time
 
 from multiprocessing import Process, Queue, cpu_count
 from tqdm import tqdm
@@ -52,6 +53,7 @@ def parse():
     frequency_list = {}
     bytes_read = 0
 
+
     progress_bar = tqdm(
         total=os.path.getsize(FINAL_FILE_NAME),
         mininterval=0.1,
@@ -73,6 +75,7 @@ def parse():
 
     with open(FINAL_FILE_NAME, 'rt') as file_handle:
         reader_buffer = ''
+        last_disk_save = time.time()
 
         while True:
             chunk = file_handle.read(1024 * 64)
@@ -89,6 +92,8 @@ def parse():
                 partial_frequency_list = output_queue.get()
                 update_frequency_list(frequency_list, partial_frequency_list)
 
+            if (time.time() - last_disk_save) > 60 * 5:
+                last_disk_save = time.time()
                 store(frequency_list)
 
     for _ in processes:
