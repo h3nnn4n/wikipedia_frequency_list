@@ -60,7 +60,7 @@ def parse():
         unit_divisor=1024
     )
 
-    input_queue = Queue(maxsize=50)
+    input_queue = Queue(maxsize=100)
     output_queue = Queue()
 
     processes = [
