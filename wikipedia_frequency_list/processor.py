@@ -84,22 +84,29 @@ def parse():
             bytes_read = len(chunk.encode('utf-8'))
             progress_bar.update(bytes_read)
 
+            if not output_queue.empty():
+                partial_frequency_list = output_queue.get()
+                update_frequency_list(frequency_list, partial_frequency_list)
+
     for _ in processes:
         input_queue.put('die')
 
     for _ in processes:
         partial_frequency_list = output_queue.get()
-
-        for key, value in partial_frequency_list.items():
-            try:
-                frequency_list[key] += value
-            except KeyError:
-                frequency_list[key] = value
+        update_frequency_list(frequency_list, partial_frequency_list)
 
     for process in processes:
         process.join()
 
     return frequency_list
+
+
+def update_frequency_list(frequency_list, delta):
+    for key, value in delta.items():
+        try:
+            frequency_list[key] += value
+        except KeyError:
+            frequency_list[key] = value
 
 
 def p_processor(input_queue, output_queue):
@@ -113,6 +120,10 @@ def p_processor(input_queue, output_queue):
 
         for line in lines:
             parse_line(frequency_list, line)
+
+        if len(frequency_list) > 10000:
+            output_queue.put(frequency_list)
+            frequency_list = {}
 
     output_queue.put(frequency_list)
 
