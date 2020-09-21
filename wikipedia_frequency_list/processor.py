@@ -9,6 +9,7 @@ from tqdm import tqdm
 import MeCab
 
 from .downloader import FILE_NAME, FINAL_FILE_NAME
+from .store import store
 
 
 def extract():
@@ -88,6 +89,8 @@ def parse():
                 partial_frequency_list = output_queue.get()
                 update_frequency_list(frequency_list, partial_frequency_list)
 
+                store(frequency_list)
+
     for _ in processes:
         input_queue.put('die')
 
@@ -150,16 +153,3 @@ def parse_line(frequency_list, line):
             frequency_list[token] = 1
         else:
             frequency_list[token] += 1
-
-
-def sort_and_normalize(frequency_list):
-    sorted_frequency_list = {
-        # pylint: disable=unnecessary-comprehension
-        k: v for k, v in sorted(
-            frequency_list.items(),
-            key=lambda item: item[1],
-            reverse=True
-        )
-    }
-
-    return sorted_frequency_list

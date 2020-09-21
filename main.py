@@ -1,5 +1,5 @@
 from wikipedia_frequency_list.downloader import download
-from wikipedia_frequency_list.processor import parse, extract
+from wikipedia_frequency_list.processor import parse, extract, parse
 from wikipedia_frequency_list.store import store
 
 
